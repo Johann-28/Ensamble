@@ -1,0 +1,446 @@
+ <div class="evento-detail-container">
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading-container">
+        <p-card>
+          <div class="grid">
+            <div class="col-12 md:col-8">
+              <p-skeleton height="3rem" class="mb-3"></p-skeleton>
+              <p-skeleton height="1.5rem" width="60%" class="mb-2"></p-skeleton>
+              <p-skeleton height="1rem" width="40%" class="mb-4"></p-skeleton>
+              <p-skeleton height="4rem"></p-skeleton>
+            </div>
+            <div class="col-12 md:col-4">
+              <p-skeleton height="2rem" class="mb-3"></p-skeleton>
+              <p-skeleton height="1.5rem" class="mb-2"></p-skeleton>
+              <p-skeleton height="1.5rem" class="mb-2"></p-skeleton>
+            </div>
+          </div>
+        </p-card>
+      </div>
+
+      <!-- Content -->
+      <div *ngIf="!loading && evento">
+        <!-- Header -->
+        <div class="flex align-items-center mb-4">
+          <p-button 
+            icon="pi pi-arrow-left" 
+            [text]="true"
+            (onClick)="goBack()"
+            class="mr-3">
+          </p-button>
+          <div class="flex-1">
+            <div class="flex align-items-center gap-3 mb-2">
+              <h1 class="text-3xl font-bold text-primary m-0">
+                {{ evento.nombre }}
+              </h1>
+              <p-tag 
+                [value]="evento.tipo.nombre"
+                [severity]="getTipoSeverity(evento.tipo.codigo)">
+              </p-tag>
+              <p-tag 
+                [value]="evento.estado.nombre"
+                [severity]="getEstadoSeverity(evento.estado.codigo)">
+              </p-tag>
+            </div>
+            <div class="flex align-items-center gap-4 text-color-secondary">
+              <span *ngIf="evento.lugar">
+                <i class="pi pi-map-marker mr-1"></i>{{ evento.lugar }}
+              </span>
+              <span>
+                <i class="pi pi-clock mr-1"></i>{{ formatDate(evento.fecha_presentacion) }}
+              </span>
+              <span>
+                <i class="pi pi-user mr-1"></i>{{ participantes.length }} participantes
+              </span>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <p-button 
+              label="Editar" 
+              icon="pi pi-pencil"
+              severity="warn"
+              [routerLink]="['/eventos', evento.id, 'editar']">
+            </p-button>
+            <p-button 
+              label="Eliminar" 
+              icon="pi pi-trash"
+              severity="danger"
+              (onClick)="confirmDelete()">
+            </p-button>
+          </div>
+        </div>
+
+        <!-- Tabs Content -->
+        <p-tabs>
+          <!-- Tab: Información General -->
+          <p-tabpanels header="Información General" leftIcon="pi pi-info-circle">
+            <div class="grid">
+              <div class="col-12 md:col-8">
+                <p-card>
+                  <ng-template pTemplate="header">
+                    <div class="flex align-items-center gap-2 p-4 pb-0">
+                      <i class="pi pi-file-text text-xl text-primary"></i>
+                      <span class="text-xl font-semibold">Detalles del Evento</span>
+                    </div>
+                  </ng-template>
+
+                  <div class="grid">
+                    <div class="col-12 md:col-6">
+                      <div class="field">
+                        <label class="font-semibold text-color-secondary">Nombre</label>
+                        <p class="mt-1 mb-3">{{ evento.nombre }}</p>
+                      </div>
+                    </div>
+
+                    <div class="col-12 md:col-6">
+                      <div class="field">
+                        <label class="font-semibold text-color-secondary">Tipo</label>
+                        <p class="mt-1 mb-3">
+                          <p-tag 
+                            [value]="evento.tipo.nombre"
+                            [severity]="getTipoSeverity(evento.tipo.codigo)">
+                          </p-tag>
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="col-12 md:col-6">
+                      <div class="field">
+                        <label class="font-semibold text-color-secondary">Estado</label>
+                        <p class="mt-1 mb-3">
+                          <p-tag 
+                            [value]="evento.estado.nombre"
+                            [severity]="getEstadoSeverity(evento.estado.codigo)">
+                          </p-tag>
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="col-12 md:col-6">
+                      <div class="field">
+                        <label class="font-semibold text-color-secondary">Fecha y Hora</label>
+                        <p class="mt-1 mb-3">{{ formatDate(evento.fecha_presentacion) }}</p>
+                      </div>
+                    </div>
+
+                    <div class="col-12" *ngIf="evento.lugar">
+                      <div class="field">
+                        <label class="font-semibold text-color-secondary">Lugar</label>
+                        <p class="mt-1 mb-3">
+                          <i class="pi pi-map-marker mr-2 text-color-secondary"></i>
+                          {{ evento.lugar }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="col-12" *ngIf="evento.descripcion">
+                      <div class="field">
+                        <label class="font-semibold text-color-secondary">Descripción</label>
+                        <p class="mt-1 mb-0 line-height-3">{{ evento.descripcion }}</p>
+                      </div>
+                    </div>
+                  </div>
+                </p-card>
+              </div>
+
+              <div class="col-12 md:col-4">
+                <!-- Estadísticas Rápidas -->
+                <p-card class="mb-3">
+                  <ng-template pTemplate="header">
+                    <div class="flex align-items-center gap-2 p-4 pb-0">
+                      <i class="pi pi-chart-bar text-xl text-primary"></i>
+                      <span class="text-xl font-semibold">Estadísticas</span>
+                    </div>
+                  </ng-template>
+
+                  <div class="flex flex-column gap-3">
+                    <div class="flex justify-content-between align-items-center">
+                      <span class="text-color-secondary">Total Participantes</span>
+                      <span class="font-bold text-2xl text-primary">{{ participantes.length }}</span>
+                    </div>
+                    <div class="flex justify-content-between align-items-center">
+                      <span class="text-color-secondary">Confirmados</span>
+                      <span class="font-bold text-2xl text-green-500">{{ getConfirmados() }}</span>
+                    </div>
+                    <div class="flex justify-content-between align-items-center">
+                      <span class="text-color-secondary">Pendientes</span>
+                      <span class="font-bold text-2xl text-orange-500">{{ getPendientes() }}</span>
+                    </div>
+                  </div>
+                </p-card>
+
+                <!-- Información Técnica -->
+                <p-card>
+                  <ng-template pTemplate="header">
+                    <div class="flex align-items-center gap-2 p-4 pb-0">
+                      <i class="pi pi-cog text-xl text-primary"></i>
+                      <span class="text-xl font-semibold">Información Técnica</span>
+                    </div>
+                  </ng-template>
+
+                  <div class="flex flex-column gap-2">
+                    <div>
+                      <small class="text-color-secondary block">Creado</small>
+                      <span class="font-semibold">{{ formatDate(evento.creado_en) }}</span>
+                    </div>
+                    <div>
+                      <small class="text-color-secondary block">Última actualización</small>
+                      <span class="font-semibold">{{ formatDate(evento.actualizado_en) }}</span>
+                    </div>
+                    <div>
+                      <small class="text-color-secondary block">ID del evento</small>
+                      <code class="text-sm">{{ evento.id }}</code>
+                    </div>
+                  </div>
+                </p-card>
+              </div>
+            </div>
+          </p-tabpanels>
+
+          <!-- Tab: Participantes -->
+          <p-tabpanels header="Participantes" leftIcon="pi pi-users">
+            <div class="flex justify-content-between align-items-center mb-4">
+              <div>
+                <h3 class="text-2xl font-semibold m-0">Participantes del Evento</h3>
+                <p class="text-color-secondary mt-1 mb-0">
+                  Gestiona los músicos invitados y confirmados para este evento
+                </p>
+              </div>
+              <p-button 
+                label="Invitar Músico" 
+                icon="pi pi-user-plus"
+                (onClick)="showInviteDialog = true">
+              </p-button>
+            </div>
+
+            <!-- Tabla de Participantes -->
+            <p-card>
+              <p-table 
+                [value]="participantes" 
+                [loading]="loadingParticipantes"
+                styleClass="p-datatable-striped">
+                
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>Músico</th>
+                    <th>Estado</th>
+                    <th>Fecha de Invitación</th>
+                    <th>Acciones</th>
+                  </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-participante>
+                  <tr>
+                    <td>
+                      <div class="flex align-items-center gap-3">
+                        <div class="flex align-items-center justify-content-center bg-primary text-white border-circle" 
+                             style="width: 40px; height: 40px;">
+                          <i class="pi pi-user"></i>
+                        </div>
+                        <div>
+                          <div class="font-semibold">Músico ID: {{ participante.musico_id | slice:0:8 }}...</div>
+                          <small class="text-color-secondary">ID completo: {{ participante.musico_id }}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <p-tag 
+                        [value]="participante.estado.nombre"
+                        [severity]="getParticipanteSeverity(participante.estado.codigo)">
+                      </p-tag>
+                    </td>
+                    <td>{{ formatDate(participante.unido_en) }}</td>
+                    <td>
+                      <div class="flex gap-2">
+                        <p-button 
+                          icon="pi pi-pencil"
+                          [text]="true"
+                          [rounded]="true"
+                          pTooltip="Cambiar estado"
+                          severity="warn"
+                          size="small"
+                          (onClick)="editParticipante(participante)">
+                        </p-button>
+                        <p-button 
+                          icon="pi pi-trash"
+                          [text]="true"
+                          [rounded]="true"
+                          pTooltip="Remover participante"
+                          severity="danger"
+                          size="small"
+                          (onClick)="confirmRemoveParticipante(participante)">
+                        </p-button>
+                      </div>
+                    </td>
+                  </tr>
+                </ng-template>
+
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="4" class="text-center py-6">
+                      <div class="flex flex-column align-items-center gap-3">
+                        <i class="pi pi-users text-6xl text-color-secondary opacity-50"></i>
+                        <div class="text-xl text-color-secondary">No hay participantes invitados</div>
+                        <p-button 
+                          label="Invitar Primer Músico" 
+                          icon="pi pi-user-plus"
+                          (onClick)="showInviteDialog = true">
+                        </p-button>
+                      </div>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </p-card>
+          </p-tabpanels>
+
+          <!-- Tab: Próximas Funcionalidades -->
+          <p-tabpanels header="Canciones" leftIcon="pi pi-music">
+            <div class="text-center py-8">
+              <i class="pi pi-music text-6xl text-color-secondary opacity-50 mb-4"></i>
+              <h3 class="text-2xl text-color-secondary mb-3">Gestión de Canciones</h3>
+              <p class="text-color-secondary mb-4">
+                Esta funcionalidad estará disponible cuando se implemente el servicio de canciones.
+              </p>
+              <p class="text-sm text-color-secondary">
+                Podrás seleccionar canciones, ver requisitos instrumentales y gestionar el repertorio del evento.
+              </p>
+            </div>
+          </p-tabpanels>
+
+          <p-tabpanels header="Ensayos" leftIcon="pi pi-microphone">
+            <div class="text-center py-8">
+              <i class="pi pi-microphone text-6xl text-color-secondary opacity-50 mb-4"></i>
+              <h3 class="text-2xl text-color-secondary mb-3">Gestión de Ensayos</h3>
+              <p class="text-color-secondary mb-4">
+                Esta funcionalidad estará disponible cuando se implemente el servicio de ensayos.
+              </p>
+              <p class="text-sm text-color-secondary">
+                Podrás programar ensayos, marcar asistencia y ver recomendaciones inteligentes de canciones.
+              </p>
+            </div>
+          </p-tabpanels>
+        </p-tabs>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="!loading && !evento" class="text-center py-8">
+        <i class="pi pi-exclamation-triangle text-6xl text-red-500 mb-4"></i>
+        <h3 class="text-2xl text-color-secondary mb-3">Evento no encontrado</h3>
+        <p class="text-color-secondary mb-4">
+          El evento que buscas no existe o ha sido eliminado.
+        </p>
+        <p-button 
+          label="Volver a Eventos" 
+          icon="pi pi-arrow-left"
+          (onClick)="goBack()">
+        </p-button>
+      </div>
+    </div>
+
+    <!-- Dialog: Invitar Músico -->
+    <p-dialog 
+      header="Invitar Músico" 
+      [(visible)]="showInviteDialog" 
+      [modal]="true" 
+      [style]="{width: '450px'}"
+      [closable]="true">
+      
+      <div class="flex flex-column gap-3">
+        <div class="field">
+          <label for="musicoId" class="block font-semibold mb-2">ID del Músico</label>
+          <input 
+            id="musicoId"
+            type="text" 
+            pInputText 
+            [(ngModel)]="newParticipante.musico_id"
+            placeholder="Ingresa el UUID del músico"
+            class="w-full">
+          <small class="text-color-secondary">
+            En producción, esto sería un selector de músicos registrados
+          </small>
+        </div>
+
+        <div class="field">
+          <label for="estadoInicial" class="block font-semibold mb-2">Estado Inicial</label>
+          <p-select 
+            id="estadoInicial"
+            [options]="estadosParticipante"
+            [(ngModel)]="newParticipante.estado_codigo"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Selecciona el estado"
+            class="w-full">
+          </p-select>
+        </div>
+      </div>
+
+      <ng-template pTemplate="footer">
+        <div class="flex justify-content-end gap-2">
+          <p-button 
+            label="Cancelar" 
+            icon="pi pi-times"
+            [text]="true"
+            (onClick)="cancelInvite()">
+          </p-button>
+          <p-button 
+            label="Invitar" 
+            icon="pi pi-check"
+            [loading]="submittingInvite"
+            [disabled]="!newParticipante.musico_id"
+            (onClick)="inviteMusico()">
+          </p-button>
+        </div>
+      </ng-template>
+    </p-dialog>
+
+    <!-- Dialog: Editar Participante -->
+    <p-dialog 
+      header="Cambiar Estado del Participante" 
+      [(visible)]="showEditParticipanteDialog" 
+      [modal]="true" 
+      [style]="{width: '400px'}"
+      [closable]="true">
+      
+      <div class="field">
+        <label for="nuevoEstado" class="block font-semibold mb-2">Nuevo Estado</label>
+        <p-select 
+          id="nuevoEstado"
+          [options]="estadosParticipante"
+          [(ngModel)]="editingParticipante.estado_codigo"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecciona el nuevo estado"
+          class="w-full">
+        </p-select>
+      </div>
+
+      <ng-template pTemplate="footer">
+        <div class="flex justify-content-end gap-2">
+          <p-button 
+            label="Cancelar" 
+            icon="pi pi-times"
+            [text]="true"
+            (onClick)="cancelEditParticipante()">
+          </p-button>
+          <p-button 
+            label="Actualizar" 
+            icon="pi pi-check"
+            [loading]="submittingUpdate"
+            (onClick)="updateParticipante()">
+          </p-button>
+        </div>
+      </ng-template>
+    </p-dialog>
+
+    <!-- Toast para mensajes -->
+    <p-toast position="top-right"></p-toast>
+
+    <!-- Confirmación de eliminación -->
+    <p-confirmDialog 
+      header="Confirmar Acción"
+      icon="pi pi-exclamation-triangle"
+      acceptButtonStyleClass="p-button-danger"
+      acceptLabel="Confirmar"
+      rejectLabel="Cancelar">
+    </p-confirmDialog>

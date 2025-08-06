@@ -1,0 +1,235 @@
+<div class="evento-form-container">
+      <!-- Header -->
+      <div class="flex align-items-center mb-4">
+        <p-button 
+          icon="pi pi-arrow-left" 
+          [text]="true"
+          (onClick)="goBack()"
+          class="mr-3">
+        </p-button>
+        <div>
+          <h1 class="text-3xl font-bold text-primary m-0">
+            <i class="pi pi-calendar mr-2"></i>
+            {{ isEdit ? 'Editar Evento' : 'Nuevo Evento' }}
+          </h1>
+          <p class="text-color-secondary mt-1 mb-0">
+            {{ isEdit ? 'Modifica los datos del evento musical' : 'Crea un nuevo evento musical para la banda' }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Loading Spinner -->
+      <div *ngIf="loadingEvento" class="flex justify-content-center py-6">
+        <p-progressSpinner></p-progressSpinner>
+      </div>
+
+      <!-- Formulario -->
+      <form [formGroup]="eventoForm" (ngSubmit)="onSubmit()" *ngIf="!loadingEvento">
+        <div class="grid">
+          <!-- Información Básica -->
+          <div class="col-12 lg:col-8">
+            <p-card>
+              <ng-template pTemplate="header">
+                <div class="flex align-items-center gap-2 p-4 pb-0">
+                  <i class="pi pi-info-circle text-xl text-primary"></i>
+                  <span class="text-xl font-semibold">Información Básica</span>
+                </div>
+              </ng-template>
+
+              <div class="grid">
+                <!-- Nombre del Evento -->
+                <div class="col-12">
+                  <label for="nombre" class="block text-sm font-semibold mb-2">
+                    Nombre del Evento *
+                  </label>
+                  <input 
+                    id="nombre"
+                    type="text" 
+                    pInputText 
+                    formControlName="nombre"
+                    placeholder="Ej: Concierto de Primavera 2024"
+                    [class.ng-invalid]="isFieldInvalid('nombre')"
+                    class="w-full">
+                  <small 
+                    *ngIf="isFieldInvalid('nombre')" 
+                    class="p-error block mt-1">
+                    El nombre del evento es requerido
+                  </small>
+                </div>
+
+                <!-- Descripción -->
+                <div class="col-12">
+                  <label for="descripcion" class="block text-sm font-semibold mb-2">
+                    Descripción
+                  </label>
+                  <textarea 
+                    id="descripcion"
+                    pTextarea
+                    formControlName="descripcion"
+                    placeholder="Describe el evento, repertorio, etc..."
+                    rows="4"
+                    cols="30"
+                    class="w-full">
+                  </textarea>
+                </div>
+
+                <!-- Tipo y Estado -->
+                <div class="col-12 md:col-6">
+                  <label for="tipo" class="block text-sm font-semibold mb-2">
+                    Tipo de Evento *
+                  </label>
+                  <p-select 
+                    id="tipo"
+                    [options]="tiposEvento"
+                    formControlName="tipo_codigo"
+                    optionLabel="nombre"
+                    optionValue="codigo"
+                    placeholder="Selecciona el tipo"
+                    [class.ng-invalid]="isFieldInvalid('tipo_codigo')"
+                    styleClass="w-full">
+                  </p-select>
+                  <small 
+                    *ngIf="isFieldInvalid('tipo_codigo')" 
+                    class="p-error block mt-1">
+                    El tipo de evento es requerido
+                  </small>
+                </div>
+
+                <div class="col-12 md:col-6" *ngIf="isEdit">
+                  <label for="estado" class="block text-sm font-semibold mb-2">
+                    Estado del Evento
+                  </label>
+                  <p-select 
+                    id="estado"
+                    [options]="estadosEvento"
+                    formControlName="estado_codigo"
+                    optionLabel="nombre"
+                    optionValue="codigo"
+                    placeholder="Selecciona el estado"
+                    styleClass="w-full">
+                  </p-select>
+                </div>
+
+                <!-- Lugar -->
+                <div class="col-12">
+                  <label for="lugar" class="block text-sm font-semibold mb-2">
+                    Lugar del Evento
+                  </label>
+                  <input 
+                    id="lugar"
+                    type="text" 
+                    pInputText 
+                    formControlName="lugar"
+                    placeholder="Ej: Teatro Municipal, Estudio de Grabación..."
+                    class="w-full">
+                </div>
+
+                <!-- Fecha y Hora -->
+                <div class="col-12">
+                  <label for="fecha" class="block text-sm font-semibold mb-2">
+                    Fecha y Hora de Presentación *
+                  </label>
+                  <p-date-picker 
+                    id="fecha"
+                    formControlName="fecha_presentacion"
+                    [showTime]="true"
+                    [showSeconds]="false"
+                    dateFormat="dd/mm/yy"
+                    placeholder="Selecciona fecha y hora"
+                    [class.ng-invalid]="isFieldInvalid('fecha_presentacion')"
+                    styleClass="w-full">
+                  </p-date-picker>
+                  <small 
+                    *ngIf="isFieldInvalid('fecha_presentacion')" 
+                    class="p-error block mt-1">
+                    La fecha de presentación es requerida
+                  </small>
+                </div>
+              </div>
+            </p-card>
+          </div>
+
+          <!-- Panel de Acciones -->
+          <div class="col-12 lg:col-4">
+            <p-card>
+              <ng-template pTemplate="header">
+                <div class="flex align-items-center gap-2 p-4 pb-0">
+                  <i class="pi pi-cog text-xl text-primary"></i>
+                  <span class="text-xl font-semibold">Acciones</span>
+                </div>
+              </ng-template>
+
+              <div class="flex flex-column gap-3">
+                <!-- Botón Guardar -->
+                <p-button 
+                  [label]="isEdit ? 'Actualizar Evento' : 'Crear Evento'"
+                  [icon]="isEdit ? 'pi pi-save' : 'pi pi-plus'"
+                  type="submit"
+                  [loading]="submitting"
+                  [disabled]="eventoForm.invalid"
+                  styleClass="w-full p-button-lg">
+                </p-button>
+
+                <!-- Botón Cancelar -->
+                <p-button 
+                  label="Cancelar" 
+                  icon="pi pi-times"
+                  type="button"
+                  (onClick)="goBack()"
+                  severity="secondary"
+                  [outlined]="true"
+                  styleClass="w-full">
+                </p-button>
+
+                <!-- Vista Previa de Datos -->
+                <div class="mt-4 p-3 surface-100 border-round">
+                  <h4 class="text-lg font-semibold mb-3 text-primary">
+                    <i class="pi pi-eye mr-2"></i>
+                    Vista Previa
+                  </h4>
+                  
+                  <div class="flex flex-column gap-2">
+                    <div *ngIf="eventoForm.get('nombre')?.value">
+                      <small class="text-color-secondary block">Evento:</small>
+                      <span class="font-semibold">{{ eventoForm.get('nombre')?.value }}</span>
+                    </div>
+
+                    <div *ngIf="selectedTipoEvento">
+                      <small class="text-color-secondary block">Tipo:</small>
+                      <span class="font-semibold">{{ selectedTipoEvento.nombre }}</span>
+                    </div>
+
+                    <div *ngIf="eventoForm.get('fecha_presentacion')?.value">
+                      <small class="text-color-secondary block">Fecha:</small>
+                      <span class="font-semibold">{{ formatPreviewDate(eventoForm.get('fecha_presentacion')?.value) }}</span>
+                    </div>
+
+                    <div *ngIf="eventoForm.get('lugar')?.value">
+                      <small class="text-color-secondary block">Lugar:</small>
+                      <span class="font-semibold">{{ eventoForm.get('lugar')?.value }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Información de Ayuda -->
+                <div class="mt-3 p-3 surface-50 border-round">
+                  <h5 class="text-sm font-semibold mb-2 text-primary">
+                    <i class="pi pi-info-circle mr-1"></i>
+                    Consejos
+                  </h5>
+                  <ul class="text-sm text-color-secondary m-0 pl-3">
+                    <li class="mb-1">Un nombre descriptivo ayuda a identificar el evento</li>
+                    <li class="mb-1">La descripción puede incluir repertorio o notas especiales</li>
+                    <li class="mb-1">Especifica el lugar para facilitar la logística</li>
+                    <li>La fecha debe ser posterior al día actual</li>
+                  </ul>
+                </div>
+              </div>
+            </p-card>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Toast para mensajes -->
+    <p-toast position="top-right"></p-toast>

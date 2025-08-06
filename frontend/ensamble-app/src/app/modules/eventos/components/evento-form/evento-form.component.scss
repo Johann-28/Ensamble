@@ -1,0 +1,32 @@
+
+    .evento-form-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    ::ng-deep .p-calendar {
+      width: 100%;
+    }
+
+    ::ng-deep .p-calendar .p-inputtext {
+      width: 100%;
+    }
+
+    ::ng-deep .p-dropdown {
+      width: 100%;
+    }
+
+    .ng-invalid.ng-touched:not(.p-dropdown):not(.p-calendar) {
+      border-color: var(--red-500);
+    }
+
+    ::ng-deep .ng-invalid.ng-touched .p-dropdown-trigger,
+    ::ng-deep .ng-invalid.ng-touched .p-inputtext {
+      border-color: var(--red-500);
+    }
+
+    @media (max-width: 768px) {
+      .evento-form-container {
+        padding: 0 0.5rem;
+      }
+    }

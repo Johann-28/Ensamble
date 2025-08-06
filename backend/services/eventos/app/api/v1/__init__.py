@@ -5,6 +5,6 @@ api_router = APIRouter()
 
 api_router.include_router(
     Eventos_router, 
-    prefix="/Eventos", 
+    prefix="/eventos", 
     tags=["Eventos"]
 )

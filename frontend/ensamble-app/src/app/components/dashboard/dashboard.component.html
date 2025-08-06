@@ -1,0 +1,288 @@
+ <div class="dashboard-container fade-in">
+      <!-- Hero Header -->
+      <div class="dashboard-hero mb-5">
+        <div class="hero-content">
+          <div class="hero-text">
+            <div class="hero-icon-wrapper mb-3">
+              <i class="pi pi-music hero-icon"></i>
+            </div>
+            <h1 class="hero-title fade-in-up">
+              Band Management System
+            </h1>
+            <p class="hero-subtitle fade-in-up">
+              Gestiona tu banda musical de forma inteligente y colaborativa
+            </p>
+          </div>
+          <div class="hero-decoration">
+            <div class="floating-card">
+              <i class="pi pi-calendar"></i>
+            </div>
+            <div class="floating-card delay-1">
+              <i class="pi pi-users"></i>
+            </div>
+            <div class="floating-card delay-2">
+              <i class="pi pi-microphone"></i>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Animated Background -->
+        <div class="hero-bg">
+          <div class="wave wave1"></div>
+          <div class="wave wave2"></div>
+          <div class="wave wave3"></div>
+        </div>
+      </div>
+
+      <!-- Stats Cards with Enhanced Design -->
+      <div class="grid stats-grid mb-5">
+        <div class="col-12 md:col-6 lg:col-3">
+          <div class="stats-card-modern" 
+               style="--card-color: var(--blue-500); --card-bg: var(--blue-50);">
+            <div class="stats-icon">
+              <i class="pi pi-calendar"></i>
+            </div>
+            <div class="stats-content">
+              <div class="stats-number">{{ totalEventos }}</div>
+              <div class="stats-label">Eventos Activos</div>
+            </div>
+            <div class="stats-decoration">
+              <div class="decoration-circle"></div>
+              <div class="decoration-circle delay-1"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 md:col-6 lg:col-3">
+          <div class="stats-card-modern" 
+               style="--card-color: var(--orange-500); --card-bg: var(--orange-50);">
+            <div class="stats-icon">
+              <i class="pi pi-microphone"></i>
+            </div>
+            <div class="stats-content">
+              <div class="stats-number">{{ eventosEnEnsayo }}</div>
+              <div class="stats-label">En Ensayo</div>
+            </div>
+            <div class="stats-decoration">
+              <div class="decoration-circle"></div>
+              <div class="decoration-circle delay-1"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 md:col-6 lg:col-3">
+          <div class="stats-card-modern" 
+               style="--card-color: var(--green-500); --card-bg: var(--green-50);">
+            <div class="stats-icon">
+              <i class="pi pi-check-circle"></i>
+            </div>
+            <div class="stats-content">
+              <div class="stats-number">{{ eventosCompletados }}</div>
+              <div class="stats-label">Completados</div>
+            </div>
+            <div class="stats-decoration">
+              <div class="decoration-circle"></div>
+              <div class="decoration-circle delay-1"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 md:col-6 lg:col-3">
+          <div class="stats-card-modern" 
+               style="--card-color: var(--purple-500); --card-bg: var(--purple-50);">
+            <div class="stats-icon">
+              <i class="pi pi-clock"></i>
+            </div>
+            <div class="stats-content">
+              <div class="stats-number">{{ proximosEventos }}</div>
+              <div class="stats-label">Próximos 30 días</div>
+            </div>
+            <div class="stats-decoration">
+              <div class="decoration-circle"></div>
+              <div class="decoration-circle delay-1"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content Grid -->
+      <div class="grid main-content-grid">
+        <!-- Próximos Eventos -->
+        <div class="col-12 lg:col-8">
+          <div class="modern-card eventos-card">
+            <div class="card-header">
+              <div class="card-title-section">
+                <div class="card-icon">
+                  <i class="pi pi-calendar"></i>
+                </div>
+                <div>
+                  <h3 class="card-title">Próximos Eventos</h3>
+                  <p class="card-subtitle">Eventos programados para las próximas semanas</p>
+                </div>
+              </div>
+              <p-button 
+                label="Ver Todos" 
+                icon="pi pi-external-link"
+                [text]="true"
+                pRipple
+                class="modern-button"
+                [routerLink]="['/eventos']">
+              </p-button>
+            </div>
+
+            <div class="card-content">
+              <div *ngIf="loading" class="loading-state">
+                <div class="skeleton-event" *ngFor="let item of [1,2,3]">
+                  <p-skeleton height="4rem" class="mb-3 skeleton-animated"></p-skeleton>
+                </div>
+              </div>
+
+              <div *ngIf="!loading && proximosEventosList.length === 0" 
+                   class="empty-state">
+                <div class="empty-icon">
+                  <i class="pi pi-calendar-times"></i>
+                </div>
+                <h4 class="empty-title">No hay eventos próximos</h4>
+                <p class="empty-subtitle">Comienza creando tu primer evento musical</p>
+                <p-button 
+                  label="Crear Primer Evento" 
+                  icon="pi pi-plus"
+                  class="empty-action"
+                  pRipple
+                  [routerLink]="['/eventos/nuevo']">
+                </p-button>
+              </div>
+
+              <div class="eventos-list">
+                <div *ngFor="let evento of proximosEventosList; index as i" 
+                     class="evento-item-modern"
+                     [routerLink]="['/eventos', evento.id]"
+                     pRipple
+                     [style.animation-delay]="i * 0.1 + 's'">
+                  
+                  <div class="evento-indicator"></div>
+                  
+                  <div class="evento-content">
+                    <div class="evento-header">
+                      <h4 class="evento-title">{{ evento.nombre }}</h4>
+                      <div class="evento-tags">
+                        <p-tag 
+                          [value]="evento.tipo.nombre"
+                          [severity]="getTipoSeverity(evento.tipo.codigo)"
+                          class="modern-tag">
+                        </p-tag>
+                        <p-tag 
+                          [value]="evento.estado.nombre"
+                          [severity]="getEstadoSeverity(evento.estado.codigo)"
+                          class="modern-tag">
+                        </p-tag>
+                      </div>
+                    </div>
+                    
+                    <div class="evento-meta">
+                      <div class="meta-item" *ngIf="evento.lugar">
+                        <i class="pi pi-map-marker"></i>
+                        <span>{{ evento.lugar }}</span>
+                      </div>
+                      <div class="meta-item">
+                        <i class="pi pi-clock"></i>
+                        <span>{{ formatDate(evento.fecha_presentacion) }}</span>
+                      </div>
+                    </div>
+                    
+                    <p *ngIf="evento.descripcion" class="evento-description">
+                      {{ evento.descripcion | slice:0:100 }}{{ evento.descripcion.length > 100 ? '...' : '' }}
+                    </p>
+                  </div>
+                  
+                  <div class="evento-arrow">
+                    <i class="pi pi-chevron-right"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Módulos del Sistema -->
+        <div class="col-12 lg:col-4">
+          <div class="modern-card modules-card">
+            <div class="card-header">
+              <div class="card-title-section">
+                <div class="card-icon">
+                  <i class="pi pi-th-large"></i>
+                </div>
+                <div>
+                  <h3 class="card-title">Módulos del Sistema</h3>
+                  <p class="card-subtitle">Funcionalidades disponibles</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-content">
+              <div class="modules-grid">
+                <div *ngFor="let module of modules; index as i" 
+                     class="module-item-modern"
+                     (click)="handleModuleClick(module)"
+                     pRipple
+                     [style.animation-delay]="i * 0.05 + 's'"
+                     [class.module-active]="module.status === 'active'">
+                  
+                  <div class="module-icon-wrapper" [style.background-color]="module.color + '15'">
+                    <i [class]="module.icon" [style.color]="module.color"></i>
+                  </div>
+                  
+                  <div class="module-content">
+                    <div class="module-header">
+                      <h5 class="module-name">{{ module.name }}</h5>
+                      <p-tag 
+                        [value]="getStatusLabel(module.status)"
+                        [severity]="getStatusSeverity(module.status)"
+                        class="module-badge">
+                      </p-tag>
+                    </div>
+                    <p class="module-description">{{ module.description }}</p>
+                  </div>
+                  
+                  <div class="module-arrow" *ngIf="module.status === 'active'">
+                    <i class="pi pi-arrow-right"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart Section -->
+      <div class="grid mt-5">
+        <div class="col-12">
+          <div class="modern-card chart-card">
+            <div class="card-header">
+              <div class="card-title-section">
+                <div class="card-icon">
+                  <i class="pi pi-chart-line"></i>
+                </div>
+                <div>
+                  <h3 class="card-title">Actividad de Eventos</h3>
+                  <p class="card-subtitle">Estadísticas de los últimos 6 meses</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-content">
+              <div class="chart-container">
+                <p-chart 
+                  type="line" 
+                  [data]="chartData" 
+                  [options]="chartOptions"
+                  width="100%"
+                  height="350"
+                  class="modern-chart">
+                </p-chart>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>

@@ -1,0 +1,41 @@
+.layout-wrapper {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .layout-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .layout-content {
+      flex: 1;
+      padding: 1rem;
+      background-color: var(--surface-50);
+    }
+
+    .layout-footer {
+      background-color: var(--surface-100);
+      padding: 1rem;
+      border-top: 1px solid var(--surface-200);
+    }
+
+    ::ng-deep .custom-menubar {
+      border: none;
+      border-radius: 0;
+    }
+
+    ::ng-deep .custom-menubar .p-menubar-start {
+      margin-right: auto;
+    }
+
+    ::ng-deep .p-menuitem-link {
+      padding: 0.75rem 1rem;
+    }
+
+    ::ng-deep .p-menuitem-text {
+      font-weight: 500;
+    }
