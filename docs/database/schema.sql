@@ -144,16 +144,6 @@ CREATE TABLE cat_estados_cancion_evento (
     orden INTEGER DEFAULT 1
 );
 
--- Catálogo de instrumentos/roles
-CREATE TABLE cat_instrumentos (
-    id SERIAL PRIMARY KEY,
-    codigo VARCHAR(50) UNIQUE NOT NULL,
-    nombre VARCHAR(100) NOT NULL,
-    familia VARCHAR(50), -- viento, cuerda, percusión, etc.
-    descripcion TEXT,
-    activo BOOLEAN DEFAULT true,
-    orden INTEGER DEFAULT 1
-);
 
 -- Tabla catálogo de canciones
 CREATE TABLE canciones (
@@ -364,6 +354,18 @@ CREATE TABLE instrumentos_musico (
     CONSTRAINT fk_instrumentos_musico FOREIGN KEY (musico_id) REFERENCES musicos(id) ON DELETE CASCADE,
     CONSTRAINT uk_musico_instrumento UNIQUE(musico_id, instrumento_id)
 );
+
+-- Catálogo de instrumentos/roles
+CREATE TABLE cat_instrumentos (
+    id SERIAL PRIMARY KEY,
+    codigo VARCHAR(50) UNIQUE NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
+    familia VARCHAR(50), -- viento, cuerda, percusión, etc.
+    descripcion TEXT,
+    activo BOOLEAN DEFAULT true,
+    orden INTEGER DEFAULT 1
+);
+
 
 -- Datos iniciales para catálogos
 INSERT INTO cat_estados_musico (codigo, nombre, descripcion, orden) VALUES
