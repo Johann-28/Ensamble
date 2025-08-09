@@ -219,6 +219,24 @@ INSERT INTO cat_instrumentos (codigo, nombre, familia, orden) VALUES
     ('violin', 'Violín', 'cuerda', 11),
     ('percusion', 'Percusión', 'percusion', 12);
 
+-- En servicio_eventos
+CREATE TABLE asignaciones_musico_cancion_evento (
+    id UUID PRIMARY KEY DEFAULT public.uuid_generate_v4(),
+    cancion_id UUID NOT NULL,
+    evento_id UUID NOT NULL, -- Sin FK (referencia a servicio_eventos)
+    musico_id UUID NOT NULL, -- Sin FK (referencia a servicio_musicos)
+    instrumento_codigo VARCHAR(50) NOT NULL, -- Código del instrumento (no ID)
+    rol_especifico VARCHAR(100), -- Ej: "Voz principal", "Solo de guitarra"
+    es_titular BOOLEAN DEFAULT true, -- Titular vs suplente
+    confirmado BOOLEAN DEFAULT false, -- Si el músico confirmó
+    notas TEXT,
+    asignado_por UUID NOT NULL, -- Coordinador que asignó
+    asignado_en TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    actualizado_en TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    
+    CONSTRAINT fk_asignacion_cancion FOREIGN KEY (cancion_id) REFERENCES canciones(id) ON DELETE CASCADE,
+    CONSTRAINT uk_evento_cancion_musico_instrumento UNIQUE(evento_id, cancion_id, musico_id, instrumento_codigo)
+);
 -- Índices para servicio de canciones
 CREATE INDEX idx_canciones_titulo ON canciones(titulo);
 CREATE INDEX idx_requisitos_cancion ON requisitos_cancion(cancion_id);
