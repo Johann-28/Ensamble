@@ -15,6 +15,10 @@ export const routes: Routes = [
     loadChildren: () => import('./modules/eventos/eventos.routes').then(m => m.eventosRoutes)
   },
   {
+    path: 'musicos',
+    loadChildren: () => import('./modules/musicos/musicos.routes').then(m => m.musicosRoutes)
+  },
+  {
     path: '**',
     redirectTo: '/dashboard'
   }

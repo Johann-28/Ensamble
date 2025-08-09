@@ -1,0 +1,534 @@
+<!-- src/app/modules/musicos/components/musico-form/musico-form.component.html -->
+
+<div class="form-container">
+  <!-- Header Section -->
+  <div class="form-header">
+    <div class="header-content">
+      <div class="header-info">
+        <i class="pi pi-user-plus header-icon" *ngIf="!isEditMode"></i>
+        <i class="pi pi-user-edit header-icon" *ngIf="isEditMode"></i>
+        <div class="header-text">
+          <h1 class="header-title">{{ isEditMode ? 'Editar Músico' : 'Nuevo Músico' }}</h1>
+          <p class="header-subtitle" *ngIf="!isEditMode">Completa la información para registrar un nuevo músico</p>
+          <p class="header-subtitle" *ngIf="isEditMode">Modifica la información del músico seleccionado</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <p-button 
+          severity="danger"
+          pRipple 
+          label="Cancelar"  
+          icon="pi pi-times" 
+          (click)="onCancel()">
+        </p-button>
+        <p-button 
+          severity="primary"
+          pRipple 
+          [label]="isEditMode ? 'Actualizar Músico' : 'Crear Músico'" 
+          [icon]="isEditMode ? 'pi pi-save' : 'pi pi-plus'"
+          [loading]="loading"
+          [disabled]="musicoForm.invalid"
+          (click)="onSubmit()">
+        </p-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Form Content -->
+  <div class="form-content">
+    <form [formGroup]="musicoForm" (ngSubmit)="onSubmit()">
+      <div class="form-sections">
+        
+        <!-- Información Personal -->
+        <div class="form-section">
+          <div class="section-header">
+            <i class="pi pi-id-card section-icon"></i>
+            <h3 class="section-title">Información Personal</h3>
+            <p class="section-description">Datos básicos del músico</p>
+          </div>
+          
+          <div class="section-content">
+            <div class="form-grid">
+              
+              <!-- Nombre -->
+              <div class="form-field">
+                <label for="nombre" class="field-label">
+                  <i class="pi pi-user label-icon"></i>
+                  Nombre Completo *
+                </label>
+                <input 
+                  id="nombre"
+                  type="text" 
+                  pInputText 
+                  formControlName="nombre"
+                  placeholder="Ingresa el nombre completo del músico"
+                  [class.ng-invalid]="nombre?.invalid && nombre?.touched"
+                  class="field-input">
+                <small 
+                  *ngIf="nombre?.invalid && nombre?.touched" 
+                  class="field-error">
+                  <i class="pi pi-exclamation-triangle"></i>
+                  <span *ngIf="nombre?.errors?.['required']">El nombre es requerido</span>
+                  <span *ngIf="nombre?.errors?.['minlength']">El nombre debe tener al menos 2 caracteres</span>
+                  <span *ngIf="nombre?.errors?.['maxlength']">El nombre no puede exceder 255 caracteres</span>
+                </small>
+              </div>
+
+              <!-- Email -->
+              <div class="form-field">
+                <label for="email" class="field-label">
+                  <i class="pi pi-envelope label-icon"></i>
+                  Correo Electrónico *
+                </label>
+                <input 
+                  id="email"
+                  type="email" 
+                  pInputText 
+                  formControlName="email"
+                  placeholder="correo@ejemplo.com"
+                  [class.ng-invalid]="email?.invalid && email?.touched"
+                  class="field-input">
+                <small 
+                  *ngIf="email?.invalid && email?.touched" 
+                  class="field-error">
+                  <i class="pi pi-exclamation-triangle"></i>
+                  <span *ngIf="email?.errors?.['required']">El email es requerido</span>
+                  <span *ngIf="email?.errors?.['email']">Formato de email inválido</span>
+                </small>
+              </div>
+
+              <!-- Teléfono -->
+              <div class="form-field">
+                <label for="telefono" class="field-label">
+                  <i class="pi pi-phone label-icon"></i>
+                  Teléfono
+                </label>
+                <input 
+                  id="telefono"
+                  type="tel" 
+                  pInputText 
+                  formControlName="telefono"
+                  placeholder="+52 999 123 4567"
+                  [class.ng-invalid]="telefono?.invalid && telefono?.touched"
+                  class="field-input">
+                <small 
+                  *ngIf="telefono?.invalid && telefono?.touched" 
+                  class="field-error">
+                  <i class="pi pi-exclamation-triangle"></i>
+                  <span *ngIf="telefono?.errors?.['maxlength']">El teléfono no puede exceder 50 caracteres</span>
+                </small>
+              </div>
+
+              <!-- URL Foto de Perfil -->
+              <div class="form-field">
+                <label for="url_foto_perfil" class="field-label">
+                  <i class="pi pi-image label-icon"></i>
+                  Foto de Perfil
+                </label>
+                <input 
+                  id="url_foto_perfil"
+                  type="url" 
+                  pInputText 
+                  formControlName="url_foto_perfil"
+                  placeholder="https://ejemplo.com/foto.jpg"
+                  class="field-input">
+                <small class="field-help">
+                  <i class="pi pi-info-circle"></i>
+                  URL de la imagen para el perfil del músico
+                </small>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Información del Sistema -->
+        <div class="form-section">
+          <div class="section-header">
+            <i class="pi pi-cog section-icon"></i>
+            <h3 class="section-title">Información del Sistema</h3>
+            <p class="section-description">Configuración y estado del músico en el sistema</p>
+          </div>
+          
+          <div class="section-content">
+            <div class="form-grid">
+              
+              <!-- Estado -->
+              <div class="form-field">
+                <label for="estado_codigo" class="field-label">
+                  <i class="pi pi-flag label-icon"></i>
+                  Estado del Músico *
+                </label>
+                <p-select 
+                  id="estado_codigo"
+                  formControlName="estado_codigo"
+                  class="field-select"
+                  [options]="estados"
+                  optionLabel="nombre"
+                  optionValue="codigo"
+                >
+                </p-select>
+                <small 
+                  *ngIf="estadoCodigo?.invalid && estadoCodigo?.touched" 
+                  class="field-error">
+                  <i class="pi pi-exclamation-triangle"></i>
+                  El estado es requerido
+                </small>
+              </div>
+
+              <!-- Fecha de Ingreso -->
+              <div class="form-field" *ngIf="!isEditMode">
+                <label for="fecha_ingreso" class="field-label">
+                  <i class="pi pi-calendar label-icon"></i>
+                  Fecha de Ingreso
+                </label>
+                <input 
+                  id="fecha_ingreso"
+                  type="date"
+                  formControlName="fecha_ingreso"
+                  class="field-input">
+                <small class="field-help">
+                  <i class="pi pi-info-circle"></i>
+                  Si no se especifica, se usará la fecha actual
+                </small>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Instrumentos (Solo en modo edición) -->
+        <div class="form-section instruments-section" *ngIf="isEditMode && currentMusico">
+          <div class="section-header">
+            <i class="pi pi-heart section-icon"></i>
+            <h3 class="section-title">Instrumentos</h3>
+            <p class="section-description">Gestiona los instrumentos que domina este músico</p>
+          </div>
+          
+          <div class="section-content">
+            <!-- Botón Agregar -->
+            <div class="instruments-actions">
+              <p-button 
+                pRipple 
+                label="Agregar Instrumento" 
+                icon="pi pi-plus" 
+                severity="success"
+                type="button"
+                [disabled]="getInstrumentosDisponibles().length === 0"
+                (click)="openInstrumentoDialog()">
+              </p-button>
+              <div class="instruments-info" *ngIf="getInstrumentosDisponibles().length === 0">
+                <i class="pi pi-info-circle"></i>
+                <span>Este músico ya tiene todos los instrumentos disponibles registrados</span>
+              </div>
+            </div>
+            
+            <!-- Tabla de Instrumentos -->
+            <div class="instruments-table-container" *ngIf="currentMusico.instrumentos && currentMusico.instrumentos.length > 0">
+              <p-table 
+                [value]="currentMusico.instrumentos" 
+                [paginator]="false"
+                styleClass="instruments-table">
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>
+                      <i class="pi pi-heart"></i>
+                      Instrumento
+                    </th>
+                    <th>
+                      <i class="pi pi-star"></i>
+                      Nivel
+                    </th>
+                    <th>
+                      <i class="pi pi-crown"></i>
+                      Principal
+                    </th>
+                    <th>
+                      <i class="pi pi-calendar"></i>
+                      Fecha Inicio
+                    </th>
+                    <th>
+                      <i class="pi pi-comment"></i>
+                      Notas
+                    </th>
+                    <th class="actions-column">
+                      <i class="pi pi-cog"></i>
+                      Acciones
+                    </th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-instrumento>
+                  <tr class="instrument-row">
+                    <td class="instrument-name">
+                      <i class="pi pi-heart-fill instrument-icon"></i>
+                      {{ getInstrumentoNombre(instrumento.instrumento_id) }}
+                    </td>
+                    <td>
+                      <span 
+                        class="nivel-badge"
+                        [ngClass]="'nivel-' + getNivelSeverity(instrumento.nivel_id)">
+                        <i class="pi pi-star"></i>
+                        {{ getNivelNombre(instrumento.nivel_id) }}
+                      </span>
+                    </td>
+                    <td class="principal-column">
+                      <span 
+                        *ngIf="instrumento.es_principal" 
+                        class="principal-badge">
+                        <i class="pi pi-star"></i>
+                        Principal
+                      </span>
+                      <span *ngIf="!instrumento.es_principal" class="text-muted">
+                        <i class="pi pi-minus"></i>
+                        No
+                      </span>
+                    </td>
+                    <td>
+                      <span class="date-display">
+                        <i class="pi pi-calendar"></i>
+                        {{ instrumento.fecha_inicio | date:'shortDate' }}
+                      </span>
+                    </td>
+                    <td class="notes-column">
+                      <span 
+                        *ngIf="instrumento.notas" 
+                        class="notes-text"
+                        [pTooltip]="instrumento.notas">
+                        {{ instrumento.notas.length > 30 ? (instrumento.notas | slice:0:30) + '...' : instrumento.notas }}
+                      </span>
+                      <span *ngIf="!instrumento.notas" class="text-muted">Sin notas</span>
+                    </td>
+                    <td class="actions-cell">
+                      <div class="action-buttons">
+                        <button 
+                          pButton 
+                          pRipple 
+                          icon="pi pi-pencil" 
+                          class="p-button-rounded p-button-outlined p-button-info action-btn"
+                          type="button"
+                          (click)="editInstrumento(instrumento)"
+                          pTooltip="Editar instrumento">
+                        </button>
+                        <button 
+                          pButton 
+                          pRipple 
+                          icon="pi pi-trash" 
+                          class="p-button-rounded p-button-outlined p-button-danger action-btn"
+                          type="button"
+                          (click)="deleteInstrumento(instrumento)"
+                          pTooltip="Eliminar instrumento">
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="6" class="empty-state">
+                      <div class="empty-content">
+                        <i class="pi pi-heart empty-icon"></i>
+                        <h4>No hay instrumentos registrados</h4>
+                        <p>Este músico no tiene instrumentos asignados aún</p>
+                        <button 
+                          pButton 
+                          pRipple 
+                          label="Agregar Primer Instrumento" 
+                          icon="pi pi-plus" 
+                          class="p-button-outlined"
+                          type="button"
+                          [disabled]="getInstrumentosDisponibles().length === 0"
+                          (click)="openInstrumentoDialog()">
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </form>
+  </div>
+
+  <!-- Vista Previa de la Foto -->
+  <div class="form-section preview-section" *ngIf="musicoForm.get('url_foto_perfil')?.value">
+    <div class="section-header">
+      <i class="pi pi-eye section-icon"></i>
+      <h3 class="section-title">Vista Previa</h3>
+      <p class="section-description">Previsualización de la foto de perfil</p>
+    </div>
+    
+    <div class="section-content">
+      <div class="photo-preview">
+        <div class="photo-frame">
+          <img 
+            [src]="musicoForm.get('url_foto_perfil')?.value" 
+            alt="Vista previa del perfil"
+            class="profile-image"
+            (error)="onImageError($event)">
+        </div>
+        <div class="photo-info">
+          <p><i class="pi pi-info-circle"></i> Esta imagen se mostrará en el perfil del músico</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Dialog de Instrumentos -->
+<p-dialog 
+  [header]="isEditingInstrumento ? 'Editar Instrumento' : 'Agregar Instrumento'"
+  [(visible)]="showInstrumentoDialog"
+  [modal]="true"
+  [style]="{width: '550px'}"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="instrument-dialog">
+  
+  <div class="dialog-content">
+    <!-- Header del Diálogo -->
+    <div class="dialog-header-info">
+      <i class="pi pi-heart dialog-icon" *ngIf="!isEditingInstrumento"></i>
+      <i class="pi pi-pencil dialog-icon" *ngIf="isEditingInstrumento"></i>
+      <div class="dialog-text">
+        <p class="dialog-description" *ngIf="!isEditingInstrumento">
+          Agrega un nuevo instrumento para el músico
+        </p>
+        <p class="dialog-description" *ngIf="isEditingInstrumento">
+          Modifica la información del instrumento seleccionado
+        </p>
+      </div>
+    </div>
+    
+    <form [formGroup]="instrumentoForm">
+      <div class="dialog-form">
+        
+        <!-- Instrumento -->
+        <div class="dialog-field">
+          <label for="instrumento_id" class="dialog-label">
+            <i class="pi pi-heart label-icon"></i>
+            Instrumento *
+          </label>
+          <p-select 
+            id="instrumento_id"
+            formControlName="instrumento_id"
+            class="dialog-select"
+            [options]="getInstrumentosDisponibles()"
+            optionLabel="nombre"
+            optionValue="id">
+          </p-select>
+          <small 
+            *ngIf="getInstrumentosDisponibles().length === 0 && !isEditingInstrumento" 
+            class="dialog-info">
+            <i class="pi pi-info-circle"></i>
+            Este músico ya tiene todos los instrumentos disponibles registrados
+          </small>
+        </div>
+
+        <!-- Nivel -->
+        <div class="dialog-field">
+          <label for="nivel_id" class="dialog-label">
+            <i class="pi pi-star label-icon"></i>
+            Nivel de Habilidad *
+          </label>
+          <p-select 
+            id="nivel_id"
+            formControlName="nivel_id"
+            class="dialog-select"
+            [options]="nivelesHabilidad"
+            optionLabel="nombre"
+            optionValue="id">
+            
+          </p-select>
+        </div>
+
+        <div class="dialog-row">
+          <!-- Es Principal -->
+          <div class="dialog-field checkbox-field">
+            <div class="checkbox-wrapper">
+              <p-checkbox 
+                formControlName="es_principal" 
+                [binary]="true" 
+                inputId="es_principal">
+              </p-checkbox>
+              <label for="es_principal" class="checkbox-label">
+                <i class="pi pi-crown"></i>
+                Es instrumento principal
+              </label>
+            </div>
+            <small class="field-help">
+              <i class="pi pi-info-circle"></i>
+              Marca si este es el instrumento principal del músico
+            </small>
+          </div>
+
+
+         
+          <!-- Fecha de Inicio -->
+           <div class="dialog-field">
+            <label for="fecha_inicio" class="dialog-label">
+              <i class="pi pi-calendar label-icon"></i>
+              Fecha de Inicio
+            </label>
+            <input 
+              id="fecha_inicio"
+              type="date"
+              formControlName="fecha_inicio"
+              class="dialog-input">
+          </div> 
+        </div>
+
+        <!-- Notas -->
+        <div class="dialog-field">
+          <label for="notas" class="dialog-label">
+            <i class="pi pi-comment label-icon"></i>
+            Notas Adicionales
+          </label>
+          <textarea 
+            id="notas"
+            formControlName="notas"
+            rows="3"
+            class="dialog-textarea"
+            placeholder="Información adicional sobre este instrumento, experiencia, etc.">
+          </textarea>
+          <small class="field-help">
+            <i class="pi pi-info-circle"></i>
+            Opcional: notas sobre la experiencia con este instrumento
+          </small>
+        </div>
+
+      </div>
+    </form>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <button 
+        pButton 
+        pRipple 
+        label="Cancelar" 
+        icon="pi pi-times" 
+        class="p-button-outlined p-button-secondary"
+        (click)="showInstrumentoDialog = false">
+      </button>
+      <button 
+        pButton 
+        pRipple 
+        [label]="isEditingInstrumento ? 'Actualizar Instrumento' : 'Guardar Instrumento'" 
+        [icon]="isEditingInstrumento ? 'pi pi-save' : 'pi pi-check'"
+        class="p-button-primary"
+        [disabled]="instrumentoForm.invalid || (!isEditingInstrumento && getInstrumentosDisponibles().length === 0)"
+        (click)="saveInstrumento()">
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Toast para mensajes -->
+<p-toast position="top-right"></p-toast>
+
+<!-- Confirmación -->
+<p-confirmDialog></p-confirmDialog>

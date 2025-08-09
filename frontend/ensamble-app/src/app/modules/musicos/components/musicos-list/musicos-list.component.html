@@ -1,0 +1,179 @@
+<!-- src/app/modules/musicos/components/musicos-list/musicos-list.component.html -->
+
+<div class="card">
+  <!-- Toolbar -->
+  <p-toolbar>
+    <div class="p-toolbar-group-start">
+      <h2>Gestión de Músicos</h2>
+    </div>
+    <div class="p-toolbar-group-end">
+      <button 
+        pButton 
+        pRipple 
+        label="Nuevo Músico" 
+        icon="pi pi-plus" 
+        class="p-button-primary mr-2"
+        routerLink="/musicos/nuevo">
+      </button>
+      <button 
+        pButton 
+        pRipple 
+        [label]="activosSolo ? 'Ver Todos' : 'Solo Activos'" 
+        [icon]="activosSolo ? 'pi pi-eye' : 'pi pi-eye-slash'"
+        class="p-button-secondary"
+        (click)="toggleActivos()">
+      </button>
+    </div>
+  </p-toolbar>
+
+  <!-- Filtros -->
+  <div class="p-fluid p-formgrid p-grid mb-3">
+    <div class="p-field p-col-12 p-md-4">
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input 
+          type="text" 
+          pInputText 
+          placeholder="Buscar por nombre..." 
+          [(ngModel)]="searchTerm"
+          (keyup.enter)="search()"
+          class="w-full">
+      </span>
+    </div>
+    <div class="p-field p-col-12 p-md-3">
+      <button 
+        pButton 
+        pRipple 
+        label="Buscar" 
+        icon="pi pi-search" 
+        class="p-button-outlined"
+        (click)="search()">
+      </button>
+    </div>
+    <div class="p-field p-col-12 p-md-3">
+      <button 
+        pButton 
+        pRipple 
+        label="Limpiar" 
+        icon="pi pi-times" 
+        class="p-button-text"
+        (click)="clearSearch()">
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabla de músicos -->
+  <p-table 
+    [value]="musicos" 
+    [loading]="loading"
+    [paginator]="false"
+    styleClass="p-datatable-striped">
+    
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Nombre</th>
+        <th>Email</th>
+        <th>Teléfono</th>
+        <th>Estado</th>
+        <th>Instrumentos Principales</th>
+        <th>Total Instrumentos</th>
+        <th>Fecha Ingreso</th>
+        <th>Acciones</th>
+      </tr>
+    </ng-template>
+    
+    <ng-template pTemplate="body" let-musico>
+      <tr>
+        <td>
+          <div class="flex align-items-center">
+            <img 
+              [src]="musico.url_foto_perfil || 'https://i.pinimg.com/originals/c6/2d/f1/c62df1afc41249d5e315fb3d6b713d53.jpg'" 
+              [alt]="musico.nombre"
+              class="w-3rem h-3rem border-circle mr-2"
+              (error)="onImageError($event)">
+            <span class="font-medium">{{musico.nombre}}</span>
+          </div>
+        </td>
+        <td>{{musico.email}}</td>
+        <td>{{musico.telefono || 'N/A'}}</td>
+        <td>
+          <p-tag 
+            [value]="musico.estado.nombre" 
+            [severity]="getEstadoSeverity(musico.estado.codigo)">
+          </p-tag>
+        </td>
+        <td>{{getInstrumentosPrincipales(musico)}}</td>
+        <td>
+          <p-badge 
+            [value]="getTotalInstrumentos(musico)" 
+            [severity]="getTotalInstrumentos(musico) > 0 ? 'info' : 'secondary'">
+          </p-badge>
+        </td>
+        <td>{{formatDate(musico.fecha_ingreso)}}</td>
+        <td>
+          <div class="flex gap-2">
+            <button 
+              pButton 
+              pRipple 
+              icon="pi pi-eye" 
+              class="p-button-text p-button-info"
+              [routerLink]="['/musicos/detalle', musico.id]"
+              pTooltip="Ver detalles">
+            </button>
+            <button 
+              pButton 
+              pRipple 
+              icon="pi pi-pencil" 
+              class="p-button-text p-button-warning"
+              [routerLink]="['/musicos/editar', musico.id]"
+              pTooltip="Editar">
+            </button>
+            <button 
+              pButton 
+              pRipple 
+              icon="pi pi-trash" 
+              class="p-button-text p-button-danger"
+              (click)="deleteMusico(musico)"
+              pTooltip="Eliminar">
+            </button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+    
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="8" class="text-center">
+          <div class="p-5">
+            <i class="pi pi-users text-4xl text-400 mb-3"></i>
+            <p class="text-600 text-lg">No se encontraron músicos</p>
+            <button 
+              pButton 
+              pRipple 
+              label="Crear Primer Músico" 
+              icon="pi pi-plus" 
+              class="p-button-primary"
+              routerLink="/musicos/nuevo">
+            </button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <!-- Paginador -->
+  <p-paginator 
+    [rows]="rows" 
+    [totalRecords]="totalRecords" 
+    [first]="currentPage * rows"
+    [rowsPerPageOptions]="[10, 20, 50]"
+    (onPageChange)="onPageChange($event)"
+    *ngIf="totalRecords > rows">
+  </p-paginator>
+</div>
+
+<!-- Toast para mensajes -->
+<p-toast position="top-right"></p-toast>
+
+<!-- Diálogo de confirmación -->
+<p-confirmDialog></p-confirmDialog>

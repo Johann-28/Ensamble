@@ -80,8 +80,8 @@ export class DashboardComponent implements OnInit {
       description: 'Perfiles e instrumentos',
       icon: 'pi pi-users',
       color: '#8B5CF6',
-      status: 'inactive' as const,
-      route: null
+      status: 'active' as const,
+      route: '/musicos'
     },
     {
       name: 'Disponibilidad',

@@ -106,12 +106,12 @@ async def update_instrumento_musico(
     service: MusicosService = Depends(get_musicos_service)
 ):
     """Actualizar un instrumento de músico"""
-    return service.update_instrumento(instrumento_id, instrumento_data)
+    return service.update_instrumento_musico(instrumento_id, instrumento_data)
 
 @router.delete("/{musico_id}/instrumentos/{instrumento_id}", status_code=status.HTTP_200_OK)
 async def remove_instrumento(
     musico_id: UUID,
-    instrumento_id: int,
+    instrumento_id: UUID,
     service: MusicosService = Depends(get_musicos_service)
 ):
     """Eliminar un instrumento de un músico"""

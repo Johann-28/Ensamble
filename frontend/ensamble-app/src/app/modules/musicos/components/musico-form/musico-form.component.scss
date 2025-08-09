@@ -1,0 +1,682 @@
+/* src/app/modules/musicos/components/musico-form/musico-form.component.scss */
+
+// Variables de colores y espaciado
+:host {
+  --primary-color: #3b82f6;
+  --secondary-color: #64748b;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+  --info-color: #0ea5e9;
+  --surface-0: #ffffff;
+  --surface-50: #f8fafc;
+  --surface-100: #f1f5f9;
+  --surface-200: #e2e8f0;
+  --surface-300: #cbd5e1;
+  --surface-400: #94a3b8;
+  --surface-500: #64748b;
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --border-color: #e2e8f0;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 2.5rem;
+}
+
+// Contenedor principal
+.form-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-lg);
+  background-color: var(--surface-50);
+  min-height: 100vh;
+}
+
+// Header mejorado
+.form-header {
+  background: linear-gradient(135deg, var(--primary-color) 0%, #6366f1 100%);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+  color: white;
+  box-shadow: var(--shadow-lg);
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-lg);
+  }
+
+  .header-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+
+    .header-icon {
+      font-size: 2.5rem;
+      opacity: 0.9;
+    }
+
+    .header-text {
+      .header-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+        line-height: 1.2;
+      }
+
+      .header-subtitle {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin: var(--spacing-xs) 0 0 0;
+        line-height: 1.4;
+      }
+    }
+  }
+
+  .header-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    
+    .action-button {
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+      }
+    }
+  }
+}
+
+// Contenido del formulario
+.form-content {
+  background-color: var(--surface-0);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.form-sections {
+  padding: var(--spacing-xl);
+}
+
+// Secciones del formulario
+.form-section {
+  margin-bottom: var(--spacing-2xl);
+
+  &:last-child {
+    margin-bottom: 0;
+    margin-top: 5dvh;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 2px solid var(--border-color);
+
+    .section-icon {
+      font-size: 1.5rem;
+      color: var(--primary-color);
+      background-color: #dbeafe;
+      padding: var(--spacing-sm);
+      border-radius: var(--radius-md);
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .section-description {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin: 0;
+      margin-left: auto;
+      font-style: italic;
+    }
+  }
+
+  .section-content {
+    padding-left: var(--spacing-lg);
+  }
+}
+
+// Grid de formulario
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-xl);
+}
+
+// Campos de formulario
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+
+  .field-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 0.9rem;
+
+    .label-icon {
+      color: var(--primary-color);
+      font-size: 0.9rem;
+    }
+  }
+
+  .field-input,
+  .field-select {
+    padding: 0.75rem;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background-color: var(--surface-0);
+
+    &:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    &::placeholder {
+      color: var(--text-muted);
+    }
+
+    &.ng-invalid.ng-touched {
+      border-color: var(--danger-color);
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+  }
+
+  .field-error {
+    color: var(--danger-color);
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background-color: #fef2f2;
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--danger-color);
+  }
+
+  .field-help {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    opacity: 0.8;
+  }
+}
+
+// Sección de instrumentos
+.instruments-section {
+  .instruments-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-lg);
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+
+    .add-instrument-btn {
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+    }
+
+    .instruments-info {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      background-color: #fef3c7;
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--radius-md);
+      color: #92400e;
+      font-size: 0.9rem;
+    }
+  }
+
+  .instruments-table-container {
+    background-color: var(--surface-0);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+
+    ::ng-deep .instruments-table {
+      .p-datatable-header {
+        background: linear-gradient(135deg, var(--surface-100) 0%, var(--surface-50) 100%);
+        border-bottom: 2px solid var(--border-color);
+        
+        th {
+          padding: 1rem;
+          font-weight: 700;
+          color: var(--text-primary);
+          border-right: 1px solid var(--border-color);
+          
+          &:last-child {
+            border-right: none;
+          }
+
+          i {
+            margin-right: var(--spacing-xs);
+            color: var(--primary-color);
+          }
+        }
+      }
+
+      .instrument-row {
+        transition: background-color 0.2s ease;
+        border-bottom: 1px solid var(--border-color);
+
+        &:hover {
+          background-color: var(--surface-50);
+        }
+
+        td {
+          padding: 1rem;
+          vertical-align: middle;
+          border-right: 1px solid var(--border-color);
+          
+          &:last-child {
+            border-right: none;
+          }
+        }
+      }
+
+      .instrument-name {
+        font-weight: 600;
+        color: var(--text-primary);
+        
+        .instrument-icon {
+          margin-right: var(--spacing-sm);
+          color: var(--danger-color);
+        }
+      }
+
+      .nivel-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.85rem;
+        font-weight: 600;
+
+        &.nivel-info {
+          background-color: #dbeafe;
+          color: var(--info-color);
+        }
+
+        &.nivel-warning {
+          background-color: #fef3c7;
+          color: var(--warning-color);
+        }
+
+        &.nivel-success {
+          background-color: #d1fae5;
+          color: var(--success-color);
+        }
+
+        &.nivel-danger {
+          background-color: #fee2e2;
+          color: var(--danger-color);
+        }
+      }
+
+      .principal-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+        padding: 0.25rem 0.75rem;
+        background-color: #d1fae5;
+        color: var(--success-color);
+        border-radius: 9999px;
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+
+      .date-display {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+        color: var(--text-secondary);
+      }
+
+      .notes-column {
+        max-width: 200px;
+        
+        .notes-text {
+          color: var(--text-secondary);
+          line-height: 1.4;
+        }
+      }
+
+      .actions-cell {
+        .action-buttons {
+          display: flex;
+          gap: var(--spacing-sm);
+
+          .action-btn {
+            width: 2.5rem;
+            height: 2.5rem;
+            transition: all 0.2s ease;
+
+            &:hover {
+              transform: translateY(-1px);
+            }
+          }
+        }
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: var(--spacing-2xl);
+
+        .empty-content {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: var(--spacing-md);
+
+          .empty-icon {
+            font-size: 3rem;
+            color: var(--text-muted);
+            opacity: 0.5;
+          }
+
+          h4 {
+            color: var(--text-primary);
+            margin: 0;
+            font-size: 1.2rem;
+          }
+
+          p {
+            color: var(--text-secondary);
+            margin: 0;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Sección de vista previa
+.preview-section {
+  .photo-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-lg);
+
+    .photo-frame {
+      position: relative;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      background: linear-gradient(135deg, var(--surface-100) 0%, var(--surface-200) 100%);
+      padding: var(--spacing-md);
+
+      .profile-image {
+        max-width: 200px;
+        max-height: 200px;
+        border-radius: var(--radius-md);
+        object-fit: cover;
+        display: block;
+      }
+    }
+
+    .photo-info {
+      text-align: center;
+      
+      p {
+        color: var(--text-secondary);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--spacing-sm);
+      }
+    }
+  }
+}
+
+// Dialog de instrumentos
+::ng-deep .instrument-dialog {
+  .p-dialog-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #6366f1 100%);
+    color: white;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    
+    .p-dialog-title {
+      font-weight: 700;
+    }
+  }
+
+  .p-dialog-content {
+    padding: 0;
+  }
+
+  .dialog-content {
+    padding: var(--spacing-xl);
+  }
+
+  .dialog-header-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+    padding: var(--spacing-md);
+    background-color: var(--surface-50);
+    border-radius: var(--radius-md);
+
+    .dialog-icon {
+      font-size: 1.5rem;
+      color: var(--primary-color);
+    }
+
+    .dialog-description {
+      color: var(--text-secondary);
+      margin: 0;
+      font-style: italic;
+    }
+  }
+
+  .dialog-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+  }
+
+  .dialog-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+
+    .dialog-label {
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      font-size: 0.9rem;
+
+      .label-icon {
+        color: var(--primary-color);
+      }
+    }
+
+    .dialog-select,
+    .dialog-input {
+      padding: 0.75rem;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-size: 1rem;
+      transition: all 0.2s ease;
+
+      &:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+    }
+
+    .dialog-textarea {
+      padding: 0.75rem;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-size: 1rem;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 100px;
+      transition: all 0.2s ease;
+
+      &:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+    }
+
+    &.checkbox-field {
+      .checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+
+        .checkbox-label {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing-sm);
+          font-weight: 600;
+          color: var(--text-primary);
+          cursor: pointer;
+        }
+      }
+    }
+
+    .dialog-info {
+      color: var(--info-color);
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      background-color: #dbeafe;
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--radius-sm);
+    }
+  }
+
+  .dialog-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-lg);
+    align-items: start;
+  }
+
+  .dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg) var(--spacing-xl);
+    background-color: var(--surface-50);
+    border-top: 1px solid var(--border-color);
+  }
+}
+
+// Utilidades
+.text-muted {
+  color: var(--text-muted);
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .form-container {
+    padding: var(--spacing-md);
+  }
+
+  .form-header {
+    padding: var(--spacing-lg);
+
+    .header-content {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .header-actions {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+
+  .dialog-row {
+    grid-template-columns: 1fr;
+  }
+
+  .instruments-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  ::ng-deep .instrument-dialog {
+    .p-dialog {
+      width: 95vw !important;
+      margin: var(--spacing-md);
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .form-header {
+    .header-title {
+      font-size: 1.5rem;
+    }
+  }
+
+  ::ng-deep .instruments-table {
+    font-size: 0.85rem;
+
+    th,
+    td {
+      padding: 0.5rem !important;
+    }
+
+    .action-buttons {
+      flex-direction: column;
+    }
+  }
+}

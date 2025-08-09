@@ -1,0 +1,243 @@
+<!-- src/app/modules/musicos/components/musico-detail/musico-detail.component.html -->
+
+<div class="card" *ngIf="!loading && musico">
+  <!-- Toolbar -->
+  <p-toolbar>
+    <div class="p-toolbar-group-start">
+      <button 
+        pButton 
+        pRipple 
+        icon="pi pi-arrow-left" 
+        class="p-button-text mr-2"
+        (click)="goBack()"
+        pTooltip="Volver a la lista">
+      </button>
+      <h2>{{ musico.nombre }}</h2>
+    </div>
+    <div class="p-toolbar-group-end">
+      <button 
+        pButton 
+        pRipple 
+        label="Editar" 
+        icon="pi pi-pencil" 
+        class="p-button-warning mr-2"
+        (click)="editMusico()">
+      </button>
+      <button 
+        pButton 
+        pRipple 
+        label="Eliminar" 
+        icon="pi pi-trash" 
+        class="p-button-danger"
+        (click)="deleteMusico()">
+      </button>
+    </div>
+  </p-toolbar>
+
+  <!-- Información Principal -->
+  <div class="p-grid">
+    <div class="p-col-12 p-md-4">
+      <!-- Foto de Perfil -->
+      <div class="text-center mb-4">
+        <img 
+          [src]="musico.url_foto_perfil || 'https://i.pinimg.com/originals/c6/2d/f1/c62df1afc41249d5e315fb3d6b713d53.jpg'" 
+          [alt]="musico.nombre"
+          class="profile-image border-circle mb-3"
+          (error)="onImageError($event)">
+        <p-tag 
+          [value]="musico.estado.nombre" 
+          [severity]="getEstadoSeverity(musico.estado.codigo)"
+          class="text-lg">
+        </p-tag>
+      </div>
+    </div>
+
+    <div class="p-col-12 p-md-8">
+      <!-- Información Personal -->
+      <p-fieldset legend="Información Personal" [toggleable]="false">
+        <div class="p-grid info-grid">
+          <div class="p-col-12 p-md-6">
+            <strong>Email:</strong>
+            <p class="info-value">{{ musico.email }}</p>
+          </div>
+          <div class="p-col-12 p-md-6">
+            <strong>Teléfono:</strong>
+            <p class="info-value">{{ musico.telefono || 'No especificado' }}</p>
+          </div>
+          <div class="p-col-12 p-md-6">
+            <strong>Fecha de Ingreso:</strong>
+            <p class="info-value">{{ formatDate(musico.fecha_ingreso) }}</p>
+          </div>
+          <div class="p-col-12 p-md-6">
+            <strong>Tiempo en la Banda:</strong>
+            <p class="info-value">{{ getTiempoEnBanda() }}</p>
+          </div>
+        </div>
+      </p-fieldset>
+    </div>
+  </div>
+
+  <p-divider></p-divider>
+
+  <!-- Instrumentos Principales -->
+  <p-fieldset legend="Instrumentos Principales" [toggleable]="false" *ngIf="getInstrumentosPrincipales().length > 0">
+    <p-table [value]="getInstrumentosPrincipales()">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Instrumento</th>
+          <th>Familia</th>
+          <th>Nivel de Habilidad</th>
+          <th>Fecha de Inicio</th>
+          <th>Notas</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-instrumento>
+        <tr>
+          <td>
+            <div class="flex align-items-center">
+              <i class="pi pi-star text-yellow-500 mr-2"></i>
+              <span class="font-medium">{{ instrumento.instrumento?.nombre || 'N/A' }}</span>
+            </div>
+          </td>
+          <td>{{ instrumento.instrumento?.familia || 'N/A' }}</td>
+          <td>
+            <p-badge 
+              [value]="instrumento.nivel?.nombre || 'N/A'" 
+              severity="info">
+            </p-badge>
+          </td>
+          <td>{{ instrumento.fecha_inicio ? formatDate(instrumento.fecha_inicio) : 'N/A' }}</td>
+          <td>{{ instrumento.notas || 'Sin notas' }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-fieldset>
+
+  <!-- Instrumentos Secundarios -->
+  <p-fieldset legend="Otros Instrumentos" [toggleable]="true" [collapsed]="true" *ngIf="getInstrumentosSecundarios().length > 0">
+    <p-table [value]="getInstrumentosSecundarios()" >
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Instrumento</th>
+          <th>Familia</th>
+          <th>Nivel de Habilidad</th>
+          <th>Fecha de Inicio</th>
+          <th>Notas</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-instrumento>
+        <tr>
+          <td>{{ instrumento.instrumento?.nombre || 'N/A' }}</td>
+          <td>{{ instrumento.instrumento?.familia || 'N/A' }}</td>
+          <td>
+            <p-badge 
+              [value]="instrumento.nivel?.nombre || 'N/A'" 
+              severity="secondary">
+            </p-badge>
+          </td>
+          <td>{{ instrumento.fecha_inicio ? formatDate(instrumento.fecha_inicio) : 'N/A' }}</td>
+          <td>{{ instrumento.notas || 'Sin notas' }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-fieldset>
+
+  <!-- Mensaje si no hay instrumentos -->
+  <p-fieldset legend="Instrumentos" [toggleable]="false" *ngIf="musico.instrumentos.length === 0">
+    <div class="text-center p-5">
+      <i class="pi pi-music text-4xl text-400 mb-3"></i>
+      <p class="text-600 text-lg">No hay instrumentos registrados</p>
+      <button 
+        pButton 
+        pRipple 
+        label="Agregar Instrumento" 
+        icon="pi pi-plus" 
+        class="p-button-primary"
+        (click)="addInstrumento()">
+      </button>
+    </div>
+  </p-fieldset>
+
+  <!-- Resumen de Estadísticas -->
+  <p-divider></p-divider>
+  
+  <p-fieldset legend="Estadísticas" [toggleable]="false">
+    <div class="p-grid stats-grid">
+      <div class="p-col-12 p-md-3">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="pi pi-music">🎸</i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ musico.instrumentos.length }}</div>
+            <div class="stat-label">Total Instrumentos</div>
+          </div>
+        </div>
+      </div>
+      <div class="p-col-12 p-md-3">
+        <div class="stat-card">
+          <div class="stat-icon primary">
+            <i class="pi pi-star"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ getInstrumentosPrincipales().length }}</div>
+            <div class="stat-label">Principales</div>
+          </div>
+        </div>
+      </div>
+      <div class="p-col-12 p-md-3">
+        <div class="stat-card">
+          <div class="stat-icon secondary">
+            <i class="pi pi-calendar"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ getTiempoEnBanda() }}</div>
+            <div class="stat-label">En la Banda</div>
+          </div>
+        </div>
+      </div>
+      <div class="p-col-12 p-md-3">
+        <div class="stat-card">
+          <div class="stat-icon" [ngClass]="getEstadoSeverity(musico.estado.codigo)">
+            <i class="pi pi-user"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ musico.estado.nombre }}</div>
+            <div class="stat-label">Estado</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </p-fieldset>
+
+  <!-- Información de Auditoría -->
+  <p-fieldset legend="Información del Sistema" [toggleable]="true" [collapsed]="true">
+    <div class="p-grid info-grid">
+      <div class="p-col-12 p-md-4">
+        <strong>ID:</strong>
+        <p class="info-value text-sm">{{ musico.id }}</p>
+      </div>
+      <div class="p-col-12 p-md-4">
+        <strong>Creado:</strong>
+        <p class="info-value">{{ formatDate(musico.creado_en) }}</p>
+      </div>
+      <div class="p-col-12 p-md-4" *ngIf="musico.actualizado_en">
+        <strong>Última Actualización:</strong>
+        <p class="info-value">{{ formatDate(musico.actualizado_en) }}</p>
+      </div>
+    </div>
+  </p-fieldset>
+</div>
+
+<!-- Loading State -->
+<div class="card" *ngIf="loading">
+  <p-skeleton height="4rem" class="mb-3"></p-skeleton>
+  <p-skeleton height="2rem" class="mb-3"></p-skeleton>
+  <p-skeleton height="10rem"></p-skeleton>
+</div>
+
+<!-- Toast para mensajes -->
+<p-toast position="top-right"></p-toast>
+
+<!-- Diálogo de confirmación -->
+<p-confirmDialog></p-confirmDialog>

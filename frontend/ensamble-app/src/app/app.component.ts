@@ -51,7 +51,7 @@ export class AppComponent implements OnInit {
     {
       label: 'Músicos',
       icon: 'pi pi-users',
-      command: () => this.showComingSoon('Músicos')
+      routerLink: '/musicos'
     },
     {
       label: 'Disponibilidad',

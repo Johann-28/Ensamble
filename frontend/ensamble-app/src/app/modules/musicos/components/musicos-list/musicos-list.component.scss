@@ -1,0 +1,85 @@
+/* src/app/modules/musicos/components/musicos-list/musicos-list.component.scss */
+
+.p-toolbar {
+  margin-bottom: 1rem;
+}
+
+.p-datatable .p-datatable-tbody > tr > td {
+  vertical-align: middle;
+}
+
+.flex {
+  display: flex;
+}
+
+.align-items-center {
+  align-items: center;
+}
+
+.justify-content-center {
+  justify-content: center;
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
+.mr-2 {
+  margin-right: 0.5rem;
+}
+
+.mb-3 {
+  margin-bottom: 1rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.w-3rem {
+  width: 3rem;
+}
+
+.h-3rem {
+  height: 3rem;
+}
+
+.border-circle {
+  border-radius: 50%;
+}
+
+.bg-primary {
+  background-color: var(--primary-color);
+}
+
+.text-white {
+  color: white;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-4xl {
+  font-size: 2.25rem;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+}
+
+.text-400 {
+  color: var(--text-color-secondary);
+}
+
+.text-600 {
+  color: var(--text-color);
+}
+
+.p-5 {
+  padding: 3rem;
+}

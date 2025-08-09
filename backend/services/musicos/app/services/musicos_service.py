@@ -142,7 +142,7 @@ class MusicosService:
     # ==================== MÉTODOS PARA INSTRUMENTOS ====================
     
     def add_instrumento(self, musico_id: UUID, instrumento_data: InstrumentoMusicoCreate) -> InstrumentoMusicoResponse:
-        """Agregar un instrumento a un músico - Delegando al servicio especializado"""
+        """Agregar un instrumento a un músico"""
         # Verificar que el músico existe
         musico = self.musicos_repo.get_by_id(musico_id)
         if not musico:
@@ -151,8 +151,51 @@ class MusicosService:
                 detail="Músico no encontrado"
             )
         
-        # Delegar al servicio especializado de instrumentos
-        return self.instrumentos_service.assign_instrumento_to_musico(musico_id, instrumento_data)
+        try:
+            # Verificar que no exista ya esta combinación músico-instrumento
+            from app.models.musicos import InstrumentoMusico
+            existing = self.db.query(InstrumentoMusico).filter(
+                InstrumentoMusico.musico_id == musico_id,
+                InstrumentoMusico.instrumento_id == instrumento_data.instrumento_id
+            ).first()
+            
+            if existing:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Este músico ya tiene registrado este instrumento. No se pueden tener instrumentos duplicados."
+                )
+            
+            # Crear el nuevo instrumento
+            db_instrumento = InstrumentoMusico(
+                musico_id=musico_id,
+                instrumento_id=instrumento_data.instrumento_id,
+                nivel_id=instrumento_data.nivel_id,
+                es_principal=instrumento_data.es_principal,
+                fecha_inicio=instrumento_data.fecha_inicio,
+                notas=instrumento_data.notas
+            )
+            
+            self.db.add(db_instrumento)
+            self.db.commit()
+            self.db.refresh(db_instrumento)
+            
+            return self._instrumento_to_response_with_details(db_instrumento)
+            
+        except HTTPException:
+            raise
+        except Exception as e:
+            self.db.rollback()
+            logger.error(f"Error agregando instrumento al músico {musico_id}: {e}")
+            # Verificar si es error de llave duplicada
+            if "uk_musico_instrumento" in str(e) or "unique constraint" in str(e).lower():
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Este músico ya tiene registrado este instrumento. No se pueden tener instrumentos duplicados."
+                )
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Error interno del servidor"
+            )
     
     def get_instrumentos_musico(self, musico_id: UUID) -> List[InstrumentoMusicoResponse]:
         """Obtener todos los instrumentos de un músico - Delegando al servicio especializado"""
@@ -167,13 +210,116 @@ class MusicosService:
         # Delegar al servicio especializado
         return self.instrumentos_service.get_instrumentos_by_musico(musico_id)
     
-    def remove_instrumento(self, musico_id: UUID, instrumento_id: int) -> dict:
-        """Eliminar un instrumento de un músico - Delegando al servicio especializado"""
-        return self.instrumentos_service.remove_instrumento_from_musico(musico_id, instrumento_id)
+    def remove_instrumento(self, musico_id: UUID, instrumento_id: UUID) -> dict:
+        """Eliminar un instrumento de un músico"""
+        # Verificar que el músico existe
+        musico = self.musicos_repo.get_by_id_with_relationships(musico_id)
+        if not musico:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Músico no encontrado"
+            )
+        
+        # Buscar el instrumento específico del músico
+        instrumento_musico = None
+        for inst in musico.instrumentos:
+            if inst.id == instrumento_id:
+                instrumento_musico = inst
+                break
+        
+        if not instrumento_musico:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Instrumento no encontrado para este músico"
+            )
+        
+        try:
+            # Eliminar el instrumento de la base de datos
+            self.db.delete(instrumento_musico)
+            self.db.commit()
+            
+            return {"message": "Instrumento eliminado correctamente"}
+            
+        except Exception as e:
+            self.db.rollback()
+            logger.error(f"Error eliminando instrumento {instrumento_id} del músico {musico_id}: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Error interno del servidor"
+            )
+    
+    def update_instrumento_musico(self, instrumento_id: UUID, instrumento_data: InstrumentoMusicoUpdate) -> InstrumentoMusicoResponse:
+        """Actualizar un instrumento específico de un músico"""
+        try:
+            # Buscar el instrumento directamente por su ID
+            from app.models.musicos import InstrumentoMusico
+            instrumento_musico = self.db.query(InstrumentoMusico).filter(InstrumentoMusico.id == instrumento_id).first()
+            
+            if not instrumento_musico:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Instrumento no encontrado"
+                )
+            
+            # Verificar si se intenta cambiar el instrumento_id y si ya existe esa combinación
+            if instrumento_data.instrumento_id is not None and instrumento_data.instrumento_id != instrumento_musico.instrumento_id:
+                # Verificar que no exista ya esta combinación músico-instrumento
+                existing = self.db.query(InstrumentoMusico).filter(
+                    InstrumentoMusico.musico_id == instrumento_musico.musico_id,
+                    InstrumentoMusico.instrumento_id == instrumento_data.instrumento_id,
+                    InstrumentoMusico.id != instrumento_id  # Excluir el instrumento actual
+                ).first()
+                
+                if existing:
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail="Este músico ya tiene registrado este instrumento. No se pueden tener instrumentos duplicados."
+                    )
+            
+            # Actualizar los campos que se proporcionan
+            if instrumento_data.instrumento_id is not None:
+                instrumento_musico.instrumento_id = instrumento_data.instrumento_id
+            if instrumento_data.nivel_id is not None:
+                instrumento_musico.nivel_id = instrumento_data.nivel_id
+            if instrumento_data.es_principal is not None:
+                instrumento_musico.es_principal = instrumento_data.es_principal
+            if instrumento_data.fecha_inicio is not None:
+                instrumento_musico.fecha_inicio = instrumento_data.fecha_inicio
+            if instrumento_data.notas is not None:
+                instrumento_musico.notas = instrumento_data.notas
+            
+            self.db.commit()
+            self.db.refresh(instrumento_musico)
+            
+            return self._instrumento_to_response_with_details(instrumento_musico)
+            
+        except HTTPException:
+            raise
+        except Exception as e:
+            self.db.rollback()
+            logger.error(f"Error actualizando instrumento {instrumento_id}: {e}")
+            # Verificar si es error de llave duplicada
+            if "uk_musico_instrumento" in str(e) or "unique constraint" in str(e).lower():
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Este músico ya tiene registrado este instrumento. No se pueden tener instrumentos duplicados."
+                )
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Error interno del servidor"
+            )
     
     def get_instrumentos_disponibles(self) -> List[InstrumentoResponse]:
-        """Obtener catálogo de instrumentos disponibles - Delegando al servicio de catálogos"""
-        return self.catalogos_service.get_instrumentos_disponibles()
+        """Obtener catálogo de instrumentos disponibles"""
+        try:
+            instrumentos = self.catalogo_instrumentos_repo.get_all_active()
+            return [InstrumentoResponse.model_validate(inst) for inst in instrumentos]
+        except Exception as e:
+            logger.error(f"Error obteniendo instrumentos disponibles: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Error interno del servidor"
+            )
     
     def get_instrumentos_by_familia(self, familia: str) -> List[InstrumentoResponse]:
         """Obtener instrumentos por familia - Delegando al servicio de catálogos"""
@@ -189,7 +335,7 @@ class MusicosService:
     
     def _musico_to_response(self, musico: Musico) -> MusicoResponse:
         """Convertir modelo de músico a response schema"""
-        instrumentos = [self._instrumento_to_response(inst) for inst in musico.instrumentos] if musico.instrumentos else []
+        instrumentos = [self._instrumento_to_response_with_details(inst) for inst in musico.instrumentos] if musico.instrumentos else []
         
         return MusicoResponse(
             id=musico.id,
@@ -210,14 +356,17 @@ class MusicosService:
         return InstrumentoMusicoResponse.model_validate(instrumento)
     
     def _instrumento_to_response_with_details(self, instrumento: InstrumentoMusico) -> InstrumentoMusicoResponse:
-        # Obtener detalles del instrumento y nivel
-        instrumento_detalle = self.catalogo_instrumentos_repo.get_by_id(instrumento.instrumento_id)
-        
+        """Convertir modelo de instrumento a response schema con detalles del catálogo"""
+        # Crear el response base con los datos del InstrumentoMusico
         response_data = InstrumentoMusicoResponse.model_validate(instrumento)
         
+        # Cargar información del instrumento desde el catálogo
+        instrumento_detalle = self.catalogo_instrumentos_repo.get_by_id(instrumento.instrumento_id)
         if instrumento_detalle:
             response_data.instrumento = InstrumentoResponse.model_validate(instrumento_detalle)
-       
+        
+        # Por ahora el nivel se mantiene como None (no desarrollamos niveles de habilidad)
+        response_data.nivel = None
             
         return response_data
 
